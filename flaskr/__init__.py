@@ -1,12 +1,10 @@
 """Module that creates the Flask application and registers the blueprints."""
-
 import os
 from dotenv import load_dotenv
 from flask import Flask
 from . import db
 from . import auth
 from . import blog
-
 
 load_dotenv()  # Load environment variables from .env file
 
