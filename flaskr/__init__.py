@@ -1,16 +1,23 @@
-from dotenv import load_dotenv
+"""Module that creates the Flask application and registers the blueprints."""
+
 import os
+from dotenv import load_dotenv
 from flask import Flask
+from . import db
+from . import auth
+from . import blog
+
 
 load_dotenv()  # Load environment variables from .env file
 
 
 def create_app(test_config=None):
-    # create and configure the app
+    """create and configure the app"""
     app = Flask(__name__, instance_relative_config=True)
-
     app.config.from_mapping(
+        # a default secret that should be overridden by instance config
         SECRET_KEY=os.getenv("SECRET_KEY"),
+        # store the database in the instance folder
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
     )
 
@@ -19,7 +26,7 @@ def create_app(test_config=None):
         app.config.from_pyfile("config.py", silent=True)
     else:
         # load the test config if passed in
-        app.config.from_mapping(test_config)
+        app.config.update(test_config)
 
     # ensure the instance folder exists
     try:
@@ -32,12 +39,11 @@ def create_app(test_config=None):
     def hello():
         return "Hello, World!"
 
-    from . import db
-
     db.init_app(app)
 
-    from . import auth
-
     app.register_blueprint(auth.bp)
+    app.register_blueprint(blog.bp)
+
+    app.add_url_rule("/", endpoint="index")
 
     return app
